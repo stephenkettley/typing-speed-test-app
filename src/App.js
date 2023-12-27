@@ -1,52 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
+import Timer from "./components/Timer";
+import Word from "./components/Word";
 
 const getCloud = () =>
   `The quick brown fox jumps over the lazy dog`
     .split(" ")
     .sort(() => (Math.random() > 0.5 ? 1 : -1));
-
-function Word(props) {
-  const { text, active, correct } = props;
-
-  const rerender = useRef(0);
-
-  useEffect(() => {
-    rerender.current += 1;
-  });
-
-  if (correct === true) {
-    return (
-      <span className="correct">
-        {text} ({rerender.current})
-      </span>
-    );
-  }
-
-  if (correct === false) {
-    return (
-      <span className="incorrect">
-        {text} ({rerender.current})
-      </span>
-    );
-  }
-
-  if (active) {
-    return (
-      <span className="active">
-        {text} ({rerender.current})
-      </span>
-    );
-  }
-
-  return (
-    <span>
-      {text} ({rerender.current})
-    </span>
-  );
-}
-
-Word = React.memo(Word);
 
 function App() {
   const [userInput, setUserInput] = useState("");
@@ -57,8 +17,20 @@ function App() {
 
   const [correctWordArray, setCorrectWordArray] = useState([]);
 
+  const [startCounting, setStartCounting] = useState(false);
+
   function processInput(value) {
+    setStartCounting(true);
+
+    if (activeWordIndex === cloud.current.length) {
+      return;
+    }
     if (value.endsWith(" ")) {
+      if (activeWordIndex === cloud.current.length - 1) {
+        setUserInput("Completed!");
+        setStartCounting(false);
+        return;
+      }
       setActiveWordIndex((index) => index + 1);
       setUserInput("");
 
@@ -88,11 +60,15 @@ function App() {
         })}
       </p>
       <input
+        placeholder="Start typing..."
         type="text"
         value={userInput}
         onChange={(e) => processInput(e.target.value)}
       />
-      <p>Word Count: {activeWordIndex}</p>
+      <Timer
+        startCounting={startCounting}
+        correctWords={correctWordArray.filter(Boolean).length}
+      />
     </div>
   );
 }
