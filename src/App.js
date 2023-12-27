@@ -46,7 +46,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div id="main-container">
       <h1>topTypist [v1]</h1>
       <p>
         {cloud.current.map((word, index) => {
